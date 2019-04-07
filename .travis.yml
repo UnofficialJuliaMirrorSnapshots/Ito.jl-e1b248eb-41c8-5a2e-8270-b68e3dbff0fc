@@ -1,0 +1,20 @@
+language: cpp
+compiler: 
+    - gcc
+notifications:
+    email: false
+env:
+    matrix: 
+        - JULIAVERSION="juliareleases" 
+        - JULIAVERSION="julianightlies" 
+before_install:
+    - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+    - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
+    - sudo apt-get update -qq -y
+    - sudo apt-get install libpcre3-dev julia -y
+    - git config --global user.name "Travis User"
+    - git config --global user.email "travis@example.net"
+script:
+    - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Ito"))`); Pkg.pin("Ito"); Pkg.resolve()'
+    - julia -e 'using Ito; @assert isdefined(:Ito); @assert typeof(Ito) === Module'
+    - julia test/runtests.jl
